@@ -1,13 +1,15 @@
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
 
-    static double calcularMedia(double[] notas) {
+    static double calcularMedia(ArrayList<Double> notas) {
         double soma = 0;
-        for (double nota : notas) { // for-each para somar as notas
+        for (double nota : notas) {
             soma += nota;
         }
-        return soma / notas.length;
+        return soma / notas.size();
     }
 
     static String verificarResultado(double media) {
@@ -16,39 +18,41 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
+        Random rand = new Random();
+
+        ArrayList<String> nomes = new ArrayList<>();
+        ArrayList<ArrayList<Double>> todasNotas = new ArrayList<>();
 
         System.out.print("Quantos alunos deseja informar? ");
         int totalAlunos = sc.nextInt();
+        sc.nextLine(); // limpar buffer
+
         System.out.print("Quantas notas por aluno? ");
-        int totalNotas = sc.nextInt();
-        sc.nextLine(); // Limpar buffer do teclado
+        int notasPorAluno = sc.nextInt();
+        sc.nextLine(); // limpar buffer
 
-        String[] nomes = new String[totalAlunos];
-        double[][] notas = new double[totalAlunos][totalNotas];
-
-        // Ler nomes e notas
         for (int i = 0; i < totalAlunos; i++) {
             System.out.print("Digite o nome do aluno " + (i + 1) + ": ");
-            nomes[i] = sc.nextLine();
+            String nome = sc.nextLine();
+            nomes.add(nome);
 
-            for (int j = 0; j < totalNotas; j++) {
-                System.out.print("Digite a nota " + (j + 1) + " de " + nomes[i] + ": ");
-                notas[i][j] = sc.nextDouble();
+            ArrayList<Double> notas = new ArrayList<>();
+            for (int j = 0; j < notasPorAluno; j++) {
+                double notaAleatoria = rand.nextInt(11); // 0 a 10
+                notas.add(notaAleatoria);
             }
-            sc.nextLine(); // Limpar buffer
+            todasNotas.add(notas);
         }
 
-        // Mostrar resultados usando for-each
-        int alunoIndex = 0;
-        for (String nome : nomes) {
-            double media = calcularMedia(notas[alunoIndex]);
+        // Mostrar resultados
+        for (int i = 0; i < nomes.size(); i++) {
+            double media = calcularMedia(todasNotas.get(i));
             String resultado = verificarResultado(media);
 
-            System.out.println("\nAluno: " + nome);
+            System.out.println("\nAluno: " + nomes.get(i));
+            System.out.println("Notas: " + todasNotas.get(i));
             System.out.println("Média: " + media);
             System.out.println("Resultado: " + resultado);
-
-            alunoIndex++;
         }
 
         sc.close();
