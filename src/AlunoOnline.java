@@ -1,4 +1,4 @@
-public class AlunoOnline extends Aluno implements Avaliavel {
+public class AlunoOnline extends Aluno {
 
     public AlunoOnline(String nome, int totalAulas) {
         super(nome, totalAulas);
@@ -7,9 +7,9 @@ public class AlunoOnline extends Aluno implements Avaliavel {
     @Override
     public String verificarResultado() {
         if (calcularMedia() >= 7) {
-            return "Aprovado (Online)";
+            return nome + ": Aprovado (Online)";
         } else {
-            return "Reprovado (Online)";
+            return nome + ": Reprovado (Online)";
         }
     }
 }

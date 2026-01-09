@@ -1,4 +1,4 @@
-public class AlunoPresencial extends Aluno implements Avaliavel {
+public class AlunoPresencial extends Aluno {
 
     public AlunoPresencial(String nome, int totalAulas) {
         super(nome, totalAulas);
@@ -7,9 +7,9 @@ public class AlunoPresencial extends Aluno implements Avaliavel {
     @Override
     public String verificarResultado() {
         if (calcularMedia() >= 7 && calcularPresenca() >= 75) {
-            return "Aprovado (Presencial)";
+            return nome + ": Aprovado (Presencial)";
         } else {
-            return "Reprovado (Presencial)";
+            return nome + ": Reprovado (Presencial)";
         }
     }
 }

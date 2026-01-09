@@ -1,6 +1,9 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public abstract class Aluno {
+public abstract class Aluno implements Avaliavel, Serializable {
+    private static final long serialVersionUID = 1L;
+
     protected String nome;
     protected ArrayList<Double> notas;
     protected int faltas;
@@ -14,14 +17,14 @@ public abstract class Aluno {
     }
 
     public void adicionarNota(double nota) {
-        notas.add(nota);
+        if (nota >= 0 && nota <= 10) {
+            notas.add(nota);
+        }
     }
 
     public double calcularMedia() {
         double soma = 0;
-        for (double n : notas) {
-            soma += n;
-        }
+        for (double n : notas) soma += n;
         return notas.size() > 0 ? soma / notas.size() : 0;
     }
 
@@ -30,8 +33,15 @@ public abstract class Aluno {
     }
 
     public void registrarFaltas(int faltas) {
-        this.faltas = faltas;
+        if (faltas >= 0 && faltas <= totalAulas) {
+            this.faltas = faltas;
+        }
     }
 
+    public String getNome() {
+        return nome;
+    }
+
+    @Override
     public abstract String verificarResultado();
 }

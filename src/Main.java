@@ -1,165 +1,145 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-    private static final String ARQUIVO = "alunos.txt";
+    private static final Scanner sc = new Scanner(System.in);
+    private static final String ARQUIVO = "alunos.dat";
+    private static Map<String, Aluno> alunosMap = new TreeMap<>();
 
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        Map<String, Aluno> alunosMap = carregarAlunos();
+        carregarAlunos();
 
-        boolean rodando = true;
-        while (rodando) {
-            System.out.println("\n=== Sistema de Alunos ===");
-            System.out.println("1 - Inserir Aluno");
-            System.out.println("2 - Listar Alunos");
-            System.out.println("3 - Listar Aprovados");
-            System.out.println("4 - Listar Reprovados");
+        while (true) {
+            System.out.println("\n=== Sistema de Alunos Avançado ===");
+            System.out.println("1 - Inserir aluno");
+            System.out.println("2 - Visualizar alunos");
+            System.out.println("3 - Remover aluno");
+            System.out.println("4 - Ordenar e exibir aprovados/reprovados");
             System.out.println("5 - Sair");
             System.out.print("Escolha uma opção: ");
 
-            int opcao = lerInt(sc);
+            int opcao = lerInt();
 
             switch (opcao) {
-                case 1 -> {
-                    System.out.print("Nome do aluno: ");
-                    String nome = sc.nextLine();
-
-                    if (alunosMap.containsKey(nome)) {
-                        System.out.println("Aluno já cadastrado!");
-                        break;
-                    }
-
-                    TipoAluno tipo = null;
-                    while (tipo == null) {
-                        System.out.print("Tipo (1 = Presencial, 2 = Online): ");
-                        int t = lerInt(sc);
-                        if (t == 1) tipo = TipoAluno.PRESENCIAL;
-                        else if (t == 2) tipo = TipoAluno.ONLINE;
-                        else System.out.println("Opção inválida!");
-                    }
-
-                    System.out.print("Total de aulas: ");
-                    int totalAulas = lerInt(sc);
-
-                    Aluno aluno = (tipo == TipoAluno.PRESENCIAL) ?
-                            new AlunoPresencial(nome, totalAulas) :
-                            new AlunoOnline(nome, totalAulas);
-
-                    System.out.print("Quantas notas este aluno tem? ");
-                    int qtdNotas = lerInt(sc);
-
-                    for (int i = 0; i < qtdNotas; i++) {
-                        System.out.print("Nota " + (i + 1) + ": ");
-                        double nota = lerDouble(sc);
-                        aluno.adicionarNota(nota);
-                    }
-
-                    if (tipo == TipoAluno.PRESENCIAL) {
-                        System.out.print("Quantas faltas? ");
-                        int faltas = lerInt(sc);
-                        ((AlunoPresencial) aluno).registrarFaltas(faltas);
-                    }
-
-                    alunosMap.put(nome, aluno);
-                    salvarAlunos(alunosMap);
-                    System.out.println("Aluno cadastrado com sucesso!");
-                }
-
-                case 2 -> exibirTodos(alunosMap);
-                case 3 -> exibirPorResultado(alunosMap, true);
-                case 4 -> exibirPorResultado(alunosMap, false);
+                case 1 -> inserirAluno();
+                case 2 -> exibirAlunos();
+                case 3 -> removerAluno();
+                case 4 -> exibirResultadosOrdenados();
                 case 5 -> {
-                    rodando = false;
+                    salvarAlunos();
                     System.out.println("Encerrando sistema...");
+                    return;
                 }
                 default -> System.out.println("Opção inválida!");
             }
         }
-
-        sc.close();
     }
 
-    // ---------------- Funções Auxiliares ----------------
+    private static void inserirAluno() {
+        System.out.print("Nome do aluno: ");
+        String nome = sc.nextLine();
+        if (alunosMap.containsKey(nome)) {
+            System.out.println("Aluno já cadastrado!");
+            return;
+        }
 
-    private static int lerInt(Scanner sc) {
+        System.out.print("Total de aulas: ");
+        int totalAulas = lerInt();
+
+        System.out.print("Tipo (1 = Presencial, 2 = Online): ");
+        int tipo = lerInt();
+
+        Aluno aluno = tipo == 1 ? new AlunoPresencial(nome, totalAulas) : new AlunoOnline(nome, totalAulas);
+
+        System.out.print("Quantas notas este aluno possui? ");
+        int qtdNotas = lerInt();
+
+        for (int i = 0; i < qtdNotas; i++) {
+            System.out.print("Nota " + (i + 1) + ": ");
+            double nota = lerDouble();
+            aluno.adicionarNota(nota);
+        }
+
+        if (aluno instanceof AlunoPresencial) {
+            System.out.print("Quantas faltas? ");
+            int faltas = lerInt();
+            ((AlunoPresencial) aluno).registrarFaltas(faltas);
+        }
+
+        alunosMap.put(nome, aluno);
+        System.out.println("Aluno cadastrado com sucesso!");
+    }
+
+    private static void exibirAlunos() {
+        if (alunosMap.isEmpty()) {
+            System.out.println("Nenhum aluno cadastrado!");
+            return;
+        }
+        alunosMap.values().forEach(a -> System.out.println(a.getNome()));
+    }
+
+    private static void removerAluno() {
+        System.out.print("Nome do aluno a remover: ");
+        String nome = sc.nextLine();
+        if (alunosMap.remove(nome) != null) {
+            System.out.println("Aluno removido com sucesso!");
+        } else {
+            System.out.println("Aluno não encontrado!");
+        }
+    }
+
+    private static void exibirResultadosOrdenados() {
+        if (alunosMap.isEmpty()) {
+            System.out.println("Nenhum aluno cadastrado!");
+            return;
+        }
+
+        System.out.println("\n=== Resultados Ordenados ===");
+        alunosMap.values()
+                 .stream()
+                 .sorted(Comparator.comparing(Aluno::getNome))
+                 .forEach(a -> System.out.println(a.verificarResultado()));
+    }
+
+    private static int lerInt() {
         while (true) {
             try {
                 return Integer.parseInt(sc.nextLine());
             } catch (NumberFormatException e) {
-                System.out.print("Digite um número válido: ");
+                System.out.print("Valor inválido! Digite um número inteiro: ");
             }
         }
     }
 
-    private static double lerDouble(Scanner sc) {
+    private static double lerDouble() {
         while (true) {
             try {
                 return Double.parseDouble(sc.nextLine());
             } catch (NumberFormatException e) {
-                System.out.print("Digite uma nota válida: ");
+                System.out.print("Valor inválido! Digite um número decimal: ");
             }
         }
     }
 
-    private static void exibirTodos(Map<String, Aluno> alunosMap) {
-        System.out.println("\n=== Todos os Alunos ===");
-        alunosMap.values().stream()
-                .sorted(Comparator.comparing(a -> a.nome))
-                .forEach(a -> System.out.println(a.verificarResultado()));
-    }
-
-    private static void exibirPorResultado(Map<String, Aluno> alunosMap, boolean aprovados) {
-        System.out.println(aprovados ? "\n=== Aprovados ===" : "\n=== Reprovados ===");
-        alunosMap.values().stream()
-                .filter(a -> (a.calcularMedia() >= 7 &&
-                        (a instanceof AlunoPresencial ? ((AlunoPresencial) a).calcularPresenca() >= 75 : true)) == aprovados)
-                .sorted(Comparator.comparing(a -> a.nome))
-                .forEach(a -> System.out.println(a.verificarResultado()));
-    }
-
-    private static void salvarAlunos(Map<String, Aluno> alunosMap) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(ARQUIVO))) {
-            for (Aluno a : alunosMap.values()) {
-                String notas = String.join(",", a.notas.stream().map(String::valueOf).toArray(String[]::new));
-                String tipo = (a instanceof AlunoPresencial) ? "PRESENCIAL" : "ONLINE";
-                int faltas = (a instanceof AlunoPresencial) ? ((AlunoPresencial) a).faltas : 0;
-                pw.println(a.nome + ";" + a.totalAulas + ";" + faltas + ";" + notas + ";" + tipo);
-            }
+    private static void salvarAlunos() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARQUIVO))) {
+            oos.writeObject(alunosMap);
+            System.out.println("Alunos salvos em " + ARQUIVO);
         } catch (IOException e) {
             System.out.println("Erro ao salvar alunos: " + e.getMessage());
         }
     }
 
-    private static Map<String, Aluno> carregarAlunos() {
-        Map<String, Aluno> map = new HashMap<>();
-        File arquivo = new File(ARQUIVO);
-        if (!arquivo.exists()) return map;
+    @SuppressWarnings("unchecked")
+    private static void carregarAlunos() {
+        File file = new File(ARQUIVO);
+        if (!file.exists()) return;
 
-        try (Scanner sc = new Scanner(arquivo)) {
-            while (sc.hasNextLine()) {
-                String[] dados = sc.nextLine().split(";");
-                String nome = dados[0];
-                int totalAulas = Integer.parseInt(dados[1]);
-                int faltas = Integer.parseInt(dados[2]);
-                String[] notasArray = dados[3].split(",");
-                String tipo = dados[4];
-
-                Aluno aluno = tipo.equals("PRESENCIAL") ?
-                        new AlunoPresencial(nome, totalAulas) :
-                        new AlunoOnline(nome, totalAulas);
-
-                for (String n : notasArray) {
-                    if (!n.isEmpty()) aluno.adicionarNota(Double.parseDouble(n));
-                }
-
-                if (aluno instanceof AlunoPresencial) ((AlunoPresencial) aluno).registrarFaltas(faltas);
-
-                map.put(nome, aluno);
-            }
-        } catch (Exception e) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+            alunosMap = (Map<String, Aluno>) ois.readObject();
+            System.out.println("Alunos carregados de " + ARQUIVO);
+        } catch (IOException | ClassNotFoundException e) {
             System.out.println("Erro ao carregar alunos: " + e.getMessage());
         }
-        return map;
     }
 }
