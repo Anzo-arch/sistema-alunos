@@ -28,3 +28,13 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+# Ignorar arquivos compilados Java
+*.class
+
+# Ignorar arquivos gerados pelo sistema
+alunos.dat
+
+# Ignorar pastas de build/compilação (caso existam)
+out/
+build/
