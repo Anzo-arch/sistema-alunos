@@ -1,13 +1,19 @@
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.InputMismatchException;
 
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        ArrayList<Avaliavel> alunos = new ArrayList<>();
 
-        // Entrada da quantidade de alunos
+        // Map para armazenar alunos pelo nome
+        Map<String, Avaliavel> alunosMap = new HashMap<>();
+        // Set para evitar nomes duplicados
+        Set<String> nomesAlunos = new HashSet<>();
+
         int n = 0;
         boolean entradaValida = false;
         while (!entradaValida) {
@@ -22,16 +28,20 @@ public class Main {
                 }
             } catch (InputMismatchException e) {
                 System.out.println("❌ Entrada inválida. Digite um número inteiro!");
-                sc.nextLine(); // limpa buffer
+                sc.nextLine();
             }
         }
 
-        // Cadastro de alunos
         for (int i = 0; i < n; i++) {
             System.out.print("\nNome do aluno: ");
             String nome = sc.nextLine();
 
-            // Tipo do aluno
+            if (nomesAlunos.contains(nome)) {
+                System.out.println("❌ Aluno já cadastrado! Digite outro nome.");
+                i--; // repete essa iteração
+                continue;
+            }
+
             int tipo = 0;
             boolean tipoValido = false;
             while (!tipoValido) {
@@ -50,7 +60,6 @@ public class Main {
                 }
             }
 
-            // Total de aulas
             int totalAulas = 0;
             boolean aulasValidas = false;
             while (!aulasValidas) {
@@ -69,7 +78,6 @@ public class Main {
                 }
             }
 
-            // Criar aluno
             Avaliavel aluno;
             if (tipo == 1) {
                 aluno = new AlunoPresencial(nome, totalAulas);
@@ -77,7 +85,6 @@ public class Main {
                 aluno = new AlunoOnline(nome, totalAulas);
             }
 
-            // Notas do aluno
             int qtdNotas = 0;
             boolean notasValidas = false;
             while (!notasValidas) {
@@ -118,7 +125,6 @@ public class Main {
                 }
             }
 
-            // Faltas (só presencial)
             if (aluno instanceof AlunoPresencial) {
                 boolean faltasValidas = false;
                 while (!faltasValidas) {
@@ -139,12 +145,15 @@ public class Main {
                 }
             }
 
-            alunos.add(aluno);
+            // Adiciona ao Map e Set
+            nomesAlunos.add(nome);
+            alunosMap.put(nome, aluno);
         }
 
         // Exibir resultados
         System.out.println("\n=== Resultados ===");
-        for (Avaliavel a : alunos) {
+        for (String nome : alunosMap.keySet()) {
+            Avaliavel a = alunosMap.get(nome);
             System.out.println(a.verificarResultado());
         }
 
